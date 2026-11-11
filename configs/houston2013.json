@@ -1,0 +1,33 @@
+{
+  "experiment_name": "SPCNet_Houston2013",
+  "dataset_type": 0,
+  "model_name": "SPCNet",
+  "cuda_device": "cuda:0",
+  "learning_rate": 0.0002,
+  "optimizer_name": "adam",
+  "weight_decay": 0.0,
+  "epochs": 35,
+  "batch_size": 128,
+  "eval_batch_size": 512,
+  "num_workers": 2,
+  "random_seed": 6,
+  "channels": 30,
+  "window_size": 11,
+  "dropout": 0.05,
+  "spcnet_params": {
+    "embed_dim": 64,
+    "depth": 8,
+    "block_m": 2,
+    "num_heads": 4,
+    "partial_channels": 16,
+    "dk_hidden": 32,
+    "lk_kernel": 11,
+    "use_self_attn": true,
+    "dropout": 0.05,
+    "lk_padding_mode": "reflect",
+    "spatial_gate_gain": 0.1
+  },
+  "enable_training": true,
+  "enable_testing": true,
+  "resume_checkpoint": ""
+}
