@@ -2,7 +2,7 @@
 
 PyTorch implementation of SPCNet: Shared-Pattern Collaborative Network for Multi-Source Remote Sensing Data Classification.
 
-This repository accompanies “Shared-Pattern Collaborative Network for Multi-Source Remote Sensing Data Classification,” accepted for publication in the *IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing* (IEEE JSTARS), 2026.
+This repository accompanies the paper [“Shared-Pattern Collaborative Network for Multi-Source Remote Sensing Data Classification”](https://ieeexplore.ieee.org/document/11774838), published in the *IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing* (IEEE JSTARS), 2026.
 
 ## 🔎 Overview
 
@@ -143,7 +143,9 @@ If you use this repository, please cite:
   author  = {Yang, Chenfang and Gong, Chuanzheng and Gao, Feng and Dong, Junyu and Du, Qian},
   journal = {IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing},
   year    = {2026},
-  note    = {Accepted for publication}
+  pages   = {1--15},
+  doi     = {10.1109/JSTARS.2026.3750641},
+  url     = {https://ieeexplore.ieee.org/document/11774838}
 }
 ```
 
