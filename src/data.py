@@ -184,26 +184,61 @@ def create_evaluation_loader(dataset, batch_size, num_workers, pin_memory=True):
         kwargs.update({"persistent_workers": True, "prefetch_factor": 2})
     return DataLoader(dataset, **kwargs)
 
-def getHouston2013Data(hsi_path, lidar_path, gt_path, index_path, channels, windowSize, batch_size, num_workers):
-    print("Houston2013!")
-    houston2013_keys = ['houston_hsi', 'houston_lidar', 'houston_gt', 'houston_train', 'houston_test', 'houston_all']
-    return getData(hsi_path, lidar_path, gt_path, index_path, houston2013_keys, channels, windowSize, batch_size, num_workers, datatype=0)
-
 def getMyData(datasetType, channels, windowSize, batch_size, num_workers):
-    if datasetType != 0:
+    dataset_settings = {
+        0: (
+            "Houston2013",
+            "houston_hsi.mat",
+            "houston_lidar.mat",
+            "houston_gt.mat",
+            "houston_index.mat",
+            ["houston_hsi", "houston_lidar", "houston_gt", "houston_train", "houston_test", "houston_all"],
+        ),
+        1: (
+            "Houston2018",
+            "houston_hsi.mat",
+            "houston_lidar.mat",
+            "houston_gt.mat",
+            "houston_index.mat",
+            ["houston_hsi", "houston_lidar", "houston_gt", "houston_train", "houston_test", "houston_all"],
+        ),
+        2: (
+            "Trento",
+            "trento_hsi.mat",
+            "trento_lidar.mat",
+            "trento_gt.mat",
+            "trento_index.mat",
+            ["trento_hsi", "trento_lidar", "trento_gt", "trento_train", "trento_test", "trento_all"],
+        ),
+        3: (
+            "Berlin",
+            "berlin_hsi.mat",
+            "berlin_sar.mat",
+            "berlin_gt.mat",
+            "berlin_index.mat",
+            ["berlin_hsi", "berlin_sar", "berlin_gt", "berlin_train", "berlin_test", "berlin_all"],
+        ),
+        4: (
+            "Augsburg",
+            "augsburg_hsi.mat",
+            "augsburg_sar.mat",
+            "augsburg_gt.mat",
+            "augsburg_index.mat",
+            ["augsburg_hsi", "augsburg_sar", "augsburg_gt", "augsburg_train", "augsburg_test", "augsburg_all"],
+        ),
+    }
+    if datasetType not in dataset_settings:
         raise ValueError(f"Unsupported dataset_type: {datasetType}")
-    hsi_path = dataset_path('Houston2013', 'houston_hsi.mat')
-    lidar_path = dataset_path('Houston2013', 'houston_lidar.mat')
-    gt_path = dataset_path('Houston2013', 'houston_gt.mat')
-    index_path = dataset_path('Houston2013', 'houston_index.mat')
-    train_loader, test_loader, trntst_loader, all_loader, hsi_pca_wight = getHouston2013Data(
-        hsi_path,
-        lidar_path,
-        gt_path,
-        index_path,
+    dataset, hsi_file, auxiliary_file, gt_file, index_file, keys = dataset_settings[datasetType]
+    return getData(
+        dataset_path(dataset, hsi_file),
+        dataset_path(dataset, auxiliary_file),
+        dataset_path(dataset, gt_file),
+        dataset_path(dataset, index_file),
+        keys,
         channels,
         windowSize,
         batch_size,
         num_workers,
+        datatype=datasetType,
     )
-    return train_loader, test_loader, trntst_loader, all_loader ,hsi_pca_wight

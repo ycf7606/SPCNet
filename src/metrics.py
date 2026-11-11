@@ -91,22 +91,40 @@ def getReport(datasetType, model_bundle, model_adapter, test_loader, report_path
         report.write('{}'.format(confusion))
         report.write('\n')
 
-def getHouston2013Report(datasetType, model_bundle, model_adapter, test_loader, report_path, device, model):
-    houston2013_class_names = ['Healthy grass', 'Stressed grass', 'Synthetic grass', 'Trees', 'Soil', 'Water', 'Residential',
-                               'Commercial', 'Road', 'Highway', 'Railway', 'Parking lot 1', 'parking lot 2', 'Tennis court', 'Running track']
-    print("Houston2013 Start!")
-    getReport(datasetType, model_bundle, model_adapter, test_loader, report_path, houston2013_class_names, device, model)
-    print("Report Success!")
-
 def getMyReport(datasetType, model_bundle, model_adapter, test_loader, report_path, device, model):
-    if datasetType != 0:
+    class_names = {
+        0: [
+            "Healthy grass", "Stressed grass", "Synthetic grass", "Trees", "Soil",
+            "Water", "Residential", "Commercial", "Road", "Highway", "Railway",
+            "Parking lot 1", "Parking lot 2", "Tennis court", "Running track",
+        ],
+        1: [
+            "Healthy grass", "Stressed grass", "Artificial turf", "Evergreen trees",
+            "Deciduous trees", "Bare earth", "Water", "Residential buildings",
+            "Non-residential buildings", "Roads", "Sidewalks", "Crosswalks",
+            "Major thoroughfares", "Highways", "Railways", "Paved parking lots",
+            "Unpaved parking lots", "Cars", "Trains", "Stadium seats",
+        ],
+        2: ["Apple trees", "Buildings", "Ground", "Woods", "Vineyard", "Roads"],
+        3: [
+            "Forest", "Residential Area", "Industrial Area", "Low Plants", "Soil",
+            "Allotment", "Commercial Area", "Water",
+        ],
+        4: [
+            "Forest", "Residential Area", "Industrial Area", "Low Plants",
+            "Allotment", "Commercial Area", "Water",
+        ],
+    }
+    if datasetType not in class_names:
         raise ValueError(f"Unsupported dataset_type: {datasetType}")
-    getHouston2013Report(
+    getReport(
         datasetType,
         model_bundle,
         model_adapter,
         test_loader,
         report_path,
+        class_names[datasetType],
         device,
         model,
     )
+    print("Report Success!")

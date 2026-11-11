@@ -1,20 +1,26 @@
 # SPCNet
 
-PyTorch implementation of the Shared-Pattern Collaborative Network (SPCNet) for multi-source remote sensing image classification.
+PyTorch implementation of SPCNet: Shared-Pattern Collaborative Network for Multi-Source Remote Sensing Data Classification.
 
-This repository accompanies “Shared-Pattern Collaborative Network for Multi-Source Remote Sensing Data Classification,” accepted for publication in the *IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing* (2026). It contains the SPCNet model, training and evaluation code, and the Houston2013 configuration.
+This repository accompanies “Shared-Pattern Collaborative Network for Multi-Source Remote Sensing Data Classification,” accepted for publication in the *IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing* (IEEE JSTARS), 2026.
 
-## Overview
+## 🔎 Overview
 
-SPCNet processes hyperspectral imagery (HSI) together with a registered auxiliary modality. Its Shared-Pattern Collaborative Block (SPCB) combines a large-kernel operator shared across modalities and depths with an input-conditioned dynamic convolution branch. The Region-Adaptive Modality Allocator (RAMA) fuses the modality features using spatially varying weights.
+SPCNet is designed for multi-source remote sensing image classification, especially the joint interpretation of hyperspectral imagery (HSI) with LiDAR or SAR data. The network combines a Shared-Pattern Collaborative Block (SPCB), which captures patterns shared across modalities and depths, with a Region-Adaptive Modality Allocator (RAMA), which fuses modality features using spatially varying weights.
 
-## Supported datasets
+## 📊 Supported Datasets
 
-| Dataset | Modalities | Classes | `dataset_type` |
-| --- | --- | ---: | ---: |
-| Houston2013 | HSI + LiDAR | 15 | 0 |
+The code supports the following dataset settings:
 
-## Repository structure
+`dataset_type` | Dataset | Modalities | Classes
+--- | --- | --- | ---:
+`0` | Houston2013 | HSI + LiDAR | 15
+`1` | Houston2018 | HSI + LiDAR | 20
+`2` | Trento | HSI + LiDAR | 6
+`3` | Berlin | HSI + SAR | 8
+`4` | Augsburg | HSI + SAR | 7
+
+## 📁 Repository Structure
 
 ```text
 SPCNet/
@@ -38,15 +44,31 @@ SPCNet/
 └── README.md
 ```
 
-## Data preparation
+## 📦 Data Preparation
 
-Dataset files are not included. Obtain Houston2013 and use the same train/test partition as the paper. The loader expects the following files and MATLAB variable names:
+Dataset files are not included in this repository. Obtain the datasets from their respective sources and keep the MATLAB filenames and variable names expected by the loader.
 
-| Dataset directory | Files | MATLAB variables |
-| --- | --- | --- |
-| `Houston2013/` | `houston_hsi.mat`, `houston_lidar.mat`, `houston_gt.mat`, `houston_index.mat` | `houston_hsi`, `houston_lidar`, `houston_gt`, `houston_train`, `houston_test`, `houston_all` |
+```text
+workspace/
+├── SPCNet/
+└── data/
+    ├── Houston2013/
+    ├── Houston2018/
+    ├── Trento/
+    ├── Berlin/
+    └── Augsburg/
+```
 
-By default, place `Houston2013/` under `data/` in the repository root. To store the data elsewhere, set `HSI_DATA_ROOT` to the directory containing `Houston2013/`.
+The default data root is `SPCNet/data/`. To use a different location, set `HSI_DATA_ROOT` to the directory containing the dataset folders.
+
+| Dataset | Required files |
+| --- | --- |
+| Houston2013, Houston2018 | `houston_hsi.mat`, `houston_lidar.mat`, `houston_gt.mat`, `houston_index.mat` |
+| Trento | `trento_hsi.mat`, `trento_lidar.mat`, `trento_gt.mat`, `trento_index.mat` |
+| Berlin | `berlin_hsi.mat`, `berlin_sar.mat`, `berlin_gt.mat`, `berlin_index.mat` |
+| Augsburg | `augsburg_hsi.mat`, `augsburg_sar.mat`, `augsburg_gt.mat`, `augsburg_index.mat` |
+
+The MATLAB variables follow the corresponding dataset prefixes. For example, Houston data uses `houston_hsi`, `houston_lidar`, `houston_gt`, `houston_train`, `houston_test`, and `houston_all`.
 
 PowerShell:
 
@@ -60,52 +82,60 @@ Linux or macOS:
 export HSI_DATA_ROOT=/path/to/datasets/hsi
 ```
 
-## Installation
+## 🧩 Pretrained Weights
 
-Use Python 3.10 and a PyTorch build compatible with the installed CUDA driver.
+Pretrained weights are not included. Train a model using the commands below before running evaluation. Checkpoints are saved under `model/SPCNet/`.
+
+## 🚀 Training and Testing
+
+Use Python 3.10. Create and activate a virtual environment, then install the dependencies.
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+Linux or macOS:
 
 ```bash
 python -m venv .venv
+source .venv/bin/activate
 ```
 
-Activate the environment, then install the dependencies:
+Install the dependencies:
 
 ```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-## Pretrained weights
-
-Pretrained weights are not included. Run training with a dataset configuration before using the evaluation command. Checkpoints are saved under `model/SPCNet/`.
-
-## Training and evaluation
-
-The provided configuration records the Houston2013 preprocessing and SPCNet settings described in the paper.
+The included paper configuration is for Houston2013 (`dataset_type = 0`):
 
 ```bash
 python scripts/train.py --config configs/houston2013.json
 ```
 
-Training evaluates the test split after each epoch, saves the checkpoint with the highest test OA, and writes a report. To evaluate that checkpoint later, pass the same configuration to the test script:
+Training evaluates the test split after each epoch and saves the checkpoint with the highest test OA. To evaluate the saved checkpoint:
 
 ```bash
 python scripts/test.py --config configs/houston2013.json
 ```
 
-The main settings are:
+To train or evaluate another supported dataset, update `dataset_type` and the experiment settings in a configuration file. Dataset-specific class counts, auxiliary-modality dimensions, preprocessing, and report labels are selected by the code.
 
-| Dataset | PCA channels | Patch size | Shared-LK size | SPCB depth | Epochs |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Houston2013 | 30 | 11 | 11 | 8 | 35 |
+## 📝 Outputs
 
-The configuration uses Adam, learning rate `2e-4`, weight decay `0`, batch size `128`, evaluation batch size `512`, dropout `0.05`, and random seed `6`.
+The project saves trained models to `model/`, training logs to `log/`, and evaluation reports to `report/`.
 
-## Outputs
+## 💡 Notes
 
-Generated checkpoints, logs, and classification reports are saved under `model/SPCNet/`, `log/SPCNet/`, and `report/SPCNet/`. These generated files and datasets are excluded from version control.
+The repository includes one configuration, for Houston2013. Other datasets can be selected by editing a configuration. Datasets and generated outputs are excluded from version control. No license file is included, following the reference repository's setup.
 
-## Citation
+## 📚 Citation
+
+If you use this repository, please cite:
 
 ```bibtex
 @article{yang2026spcnet,
@@ -117,10 +147,9 @@ Generated checkpoints, logs, and classification reports are saved under `model/S
 }
 ```
 
-## Contact
+## 📬 Contact
 
-For questions about the paper or code, contact Feng Gao at [gaofeng@ouc.edu.cn](mailto:gaofeng@ouc.edu.cn).
+For questions about the paper or code, please contact:
 
-## License
-
-No license file is included, following the current setup of the reference RSCNet repository. Public availability does not grant additional permission to reuse, modify, or redistribute this code. Contact Feng Gao regarding reuse permissions.
+- Yang Chenfang: [yangchenfang@stu.ouc.edu.cn](mailto:yangchenfang@stu.ouc.edu.cn)
+- Feng Gao (Advisor): [gaofeng@ouc.edu.cn](mailto:gaofeng@ouc.edu.cn)

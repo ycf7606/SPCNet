@@ -6,7 +6,13 @@ from typing import Any, Dict, Optional
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-DATASET_LABELS = {0: "Houston2013"}
+DATASET_LABELS = {
+    0: "Houston2013",
+    1: "Houston2018",
+    2: "Trento",
+    3: "Berlin",
+    4: "Augsburg",
+}
 
 
 @dataclass
@@ -36,18 +42,18 @@ class ExperimentConfig:
     out_features: Optional[list] = None
     data_channels: Optional[list] = None
     lidar_or_sar_channels: Optional[list] = None
-    model_save_path: str = ""
-    log_path: str = ""
-    report_path: str = ""
+    model_save_path: Optional[list] = None
+    log_path: Optional[list] = None
+    report_path: Optional[list] = None
     resume_checkpoint: str = ""
 
     def __post_init__(self):
         if self.dataset_type not in DATASET_LABELS:
             raise ValueError(f"Unsupported dataset_type: {self.dataset_type}")
 
-        self.out_features = self.out_features or [15]
-        self.data_channels = self.data_channels or [144]
-        self.lidar_or_sar_channels = self.lidar_or_sar_channels or [1]
+        self.out_features = self.out_features or [15, 20, 6, 8, 7]
+        self.data_channels = self.data_channels or [144, 50, 63, 244, 180]
+        self.lidar_or_sar_channels = self.lidar_or_sar_channels or [1, 1, 1, 4, 4]
 
         defaults = {
             "embed_dim": 64,
@@ -66,7 +72,6 @@ class ExperimentConfig:
         self._setup_paths()
 
     def _setup_paths(self):
-        dataset = DATASET_LABELS[self.dataset_type]
         suffix = (
             f"_{self.experiment_name}_pca={self.channels}"
             f"_window={self.window_size}_lr={self.learning_rate}"
@@ -75,9 +80,18 @@ class ExperimentConfig:
         model_dir = PROJECT_ROOT / "model" / "SPCNet"
         log_dir = PROJECT_ROOT / "log" / "SPCNet"
         report_dir = PROJECT_ROOT / "report" / "SPCNet"
-        self.model_save_path = str(model_dir / f"{dataset}_model{suffix}.pth")
-        self.log_path = str(log_dir / f"{dataset}_log{suffix}.txt")
-        self.report_path = str(report_dir / f"{dataset}_report{suffix}.txt")
+        self.model_save_path = [
+            str(model_dir / f"{name}_model{suffix}.pth")
+            for name in DATASET_LABELS.values()
+        ]
+        self.log_path = [
+            str(log_dir / f"{name}_log{suffix}.txt")
+            for name in DATASET_LABELS.values()
+        ]
+        self.report_path = [
+            str(report_dir / f"{name}_report{suffix}.txt")
+            for name in DATASET_LABELS.values()
+        ]
 
 
 class ConfigManager:
@@ -108,9 +122,9 @@ class ConfigManager:
             "checkpoint_snapshot_dir": config.checkpoint_snapshot_dir,
             "data_channels": config.data_channels,
             "lidar_or_sar_channels": config.lidar_or_sar_channels,
-            "model_savepath": [config.model_save_path],
-            "log_path": [config.log_path],
-            "report_path": [config.report_path],
+            "model_savepath": config.model_save_path,
+            "log_path": config.log_path,
+            "report_path": config.report_path,
             "resume_checkpoint": config.resume_checkpoint,
         }
 
